@@ -1,5 +1,8 @@
 pipeline {
     agent { label "slave" }
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Image tag to deploy')
+    }
     environment {
               APP_NAME = "register-app-pipeline"
     }
