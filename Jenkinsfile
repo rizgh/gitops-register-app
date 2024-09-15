@@ -19,12 +19,9 @@ pipeline {
                    git branch: 'main', credentialsId: 'github', url: 'https://github.com/rizgh/gitops-register-app'
                }
         }
-        stage("Retrieve Image Tag") {
+        stage('Retrieve Image Tag') {
             steps {
-                copyArtifacts(projectName: 'appjob', filter: 'image_tag.txt')
-                script {
-                    IMAGE_TAG = readFile('image_tag.txt').trim()
-                }
+            copyArtifacts(projectName: 'appjob', filter: 'image_tag.txt', target: '', flatten: true)
             }
         }
         stage("Update the Deployment Tags") {
