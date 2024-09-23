@@ -19,7 +19,7 @@ pipeline {
         }
         stage('Retrieve Image Tag') {
             steps {
-                copyArtifacts(projectName: 'appjob', filter: 'image_tag.txt', target: '', flatten: true)
+                copyArtifacts(projectName: 'CI-apps', filter: 'image_tag.txt', target: '', flatten: true)
             }
         }
         stage("Update the Deployment Tags") {
