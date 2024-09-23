@@ -19,14 +19,27 @@ pipeline {
         }
         stage("Retrieve Image Tag") {
             steps {
-                copyArtifacts(projectName: 'CI-apps', filter: 'image_tag.txt', target: '', flatten: true)
+                script {
+                    // Ensure the copyArtifacts plugin is correctly set up to retrieve the file
+                    def artifacts = copyArtifacts(
+                        projectName: 'CI-apps', 
+                        filter: 'image_tag.txt', 
+                        target: '', 
+                        flatten: true
+                    )
+                    // Read the image tag from the file
+                    def imageTagContent = readFile('image_tag.txt').trim()
+                    env.IMAGE_TAG = imageTagContent // Set the IMAGE_TAG environment variable
+                }
             }
         }
         stage("Update the Deployment Tags") {
             steps {
-                sh """
-                sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yaml
-                """
+                script {
+                    sh """
+                    sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yaml
+                    """
+                }
             }
         }
         stage("Push the Changed Deployment File to Git") {
