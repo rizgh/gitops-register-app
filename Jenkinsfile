@@ -20,19 +20,14 @@ pipeline {
         stage("Retrieve Image Tag") {
             steps {
                 script {
-                    // Ensure the copyArtifacts plugin is correctly set up to retrieve the file
-                    def artifacts = copyArtifacts(
-                        projectName: 'CI-apps', 
-                        filter: 'image_tag.txt', 
-                        target: '', 
-                        flatten: true
-                    )
-                    // Read the image tag from the file
-                    def imageTagContent = readFile('image_tag.txt').trim()
-                    env.IMAGE_TAG = imageTagContent // Set the IMAGE_TAG environment variable
+                def artifactFound = copyArtifacts(projectName: 'CI-apps', filter: 'image_tag.txt', target: '', flatten: true)
+                    if (!artifactFound) {
+                    error("Artifact image_tag.txt not found in CI-apps job.")
+                        }
                 }
             }
         }
+
         stage("Update the Deployment Tags") {
             steps {
                 script {
