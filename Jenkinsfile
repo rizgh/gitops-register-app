@@ -17,7 +17,7 @@ pipeline {
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/rizgh/gitops-register-app'
             }
         }
-        stage('Retrieve Image Tag') {
+        stage("Retrieve Image Tag") {
             steps {
                 copyArtifacts(projectName: 'CI-apps', filter: 'image_tag.txt', target: '', flatten: true)
             }
@@ -25,22 +25,22 @@ pipeline {
         stage("Update the Deployment Tags") {
             steps {
                 sh """
-                cat deployment.yaml
                 sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yaml
-                cat deployment.yaml
                 """
             }
         }
-        stage("Push the changed deployment file to Git") {
+        stage("Push the Changed Deployment File to Git") {
             steps {
-                sh """
-                git config --global user.name "rizgh"
-                git config --global user.email "riz2490@hotmail.com"
-                git add deployment.yaml
-                git commit -m "Updated Deployment Manifest"
-                """
-                withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
-                    sh "git push https://github.com/rizgh/gitops-register-app main"
+                script {
+                    sh """
+                    git config --global user.name "rizgh"
+                    git config --global user.email "riz2490@hotmail.com"
+                    git add deployment.yaml
+                    git commit -m "Updated Deployment Manifest" || echo "No changes to commit"
+                    """
+                    withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+                        sh "git push https://${GIT_USER}:${GIT_PASS}@github.com/rizgh/gitops-register-app main"
+                    }
                 }
             }
         }
